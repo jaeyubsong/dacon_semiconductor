@@ -72,14 +72,15 @@ for k in range(1000):
     hyperparams = open('hyperparams.txt', 'r')
     for j in range(k):
         hyperparams.readline()
-    cur_hyperparam = hyperparams.readline()
+    cur_hyperparam = hyperparams.readline().strip()
     hyperparams.close()
     if cur_hyperparam == "":
         break
     best_val_loss = 99999999
     best_epoch = -1
+    folder_name = '_'.join(cur_hyperparam.split(','))
     logdir = "logs/scalars/" + datetime.now().strftime("%Y%m%d-%H%M%S")
-    checkpoint_path = "training_" + str(k) + "/cp.{epoch:02d}-{val_loss:.2f}.ckpt"
+    checkpoint_path = folder_name + "/cp.{epoch:02d}-{val_loss:.2f}.ckpt"
     checkpoint_dir = os.path.dirname(checkpoint_path)
 
     cp_callback = ModelCheckpoint(checkpoint_path,

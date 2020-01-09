@@ -14,7 +14,12 @@ import numpy as np
 
 def createModel(model_params):
     model = Sequential()
-    model_params = model_params.split(',')
+    if ',' in model_params:
+        model_params = model_params.split(',')
+    elif '_' in model_params:
+        model_params = model_params.split(',')
+    else:
+        exit(-1)
     i = 0
     while i < len(model_params):
         if i == 0:
@@ -46,10 +51,10 @@ data_X = data_numpy[:, 4:]
 data_Y = data_numpy[:, 0:4]
 test_X = test_numpy[:,1:]
 
-checkpoint_path = "training_1/cp.01-43.97.ckpt"
+checkpoint_path = "training_0/cp.855-12.30.ckpt"
 checkpoint_dir = os.path.dirname(checkpoint_path)
 
-model = createModel("320,relu,320,relu,320,relu,4")
+model = createModel("160,relu,160,relu,160,relu,4")
 model.load_weights(checkpoint_path)
 model.compile(loss='mae', optimizer='adam', metrics=['mae'])
 model.evaluate(data_X, data_Y)

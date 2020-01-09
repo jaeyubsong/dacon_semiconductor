@@ -2,5 +2,4 @@
 !.gitignore
 !tensorflow_model.py
 !tensorflow_test.py
-!test_hyperparams.txt
 !environment.yml
