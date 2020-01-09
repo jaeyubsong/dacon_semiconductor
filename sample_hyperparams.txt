@@ -1,2 +1,1 @@
-240,relu,240,relu,240,relu,240,relu,240,relu,240,relu,240,relu,240,relu,240,relu,240,relu,4,linear
 400,relu,400,relu,400,relu,400,relu,400,relu,400,relu,400,relu,400,relu,400,relu,400,relu,400,relu,4,linear
