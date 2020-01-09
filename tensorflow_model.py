@@ -67,8 +67,8 @@ test_numpy = test.to_numpy()
 test_X = test_numpy[:,1:]
 
 
-
 for k in range(100):
+    hyperparams_result = open('hyperparams_result.txt', 'a+')
     hyperparams = open('test_hyperparams.txt', 'r')
     for j in range(k):
         hyperparams.readline()
@@ -98,10 +98,13 @@ for k in range(100):
     model.compile(loss='mae', optimizer='adam', metrics=['mae'])
 
     # Fit model
-    model.fit(train_X, train_Y, epochs=2, batch_size=100,
+    model.fit(train_X, train_Y, epochs=1000000, batch_size=100,
               validation_data = (valid_X, valid_Y),
               callbacks = [cp_callback, es_callback, bestModel, tensorboard_callback])
     print("Best epoch: %d, best val_loss: %.2f" % (best_epoch, best_val_loss))
+    hyperparams_result.write(cur_hyperparam)
+    hyperparams_result.write("Best epoch: %d, best val_loss: %.2f\n\n" % (best_epoch, best_val_loss))
     hyperparams.close()
+    hyperparams_result.close()
 
 print("Done")
