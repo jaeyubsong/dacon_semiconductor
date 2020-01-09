@@ -67,12 +67,13 @@ test_numpy = test.to_numpy()
 test_X = test_numpy[:,1:]
 
 
-for k in range(100):
+for k in range(1000):
     hyperparams_result = open('hyperparams_result.txt', 'a+')
-    hyperparams = open('test_hyperparams.txt', 'r')
+    hyperparams = open('hyperparams.txt', 'r')
     for j in range(k):
         hyperparams.readline()
     cur_hyperparam = hyperparams.readline()
+    hyperparams.close()
     if cur_hyperparam == "":
         break
     best_val_loss = 99999999
@@ -104,7 +105,6 @@ for k in range(100):
     print("Best epoch: %d, best val_loss: %.2f" % (best_epoch, best_val_loss))
     hyperparams_result.write(cur_hyperparam)
     hyperparams_result.write("Best epoch: %d, best val_loss: %.2f\n\n" % (best_epoch, best_val_loss))
-    hyperparams.close()
     hyperparams_result.close()
 
 print("Done")
