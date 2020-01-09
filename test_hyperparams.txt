@@ -1,2 +1,0 @@
-160,relu,160,relu,160,relu,4
-320,relu,320,relu,320,relu,4
