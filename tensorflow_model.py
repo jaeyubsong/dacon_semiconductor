@@ -10,7 +10,7 @@ from datetime import datetime
 
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Activation, BatchNormalization
+from tensorflow.keras.layers import Dense, Activation, BatchNormalization, LeakyReLU, ELU
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
 warnings.filterwarnings('ignore')
 
@@ -44,15 +44,31 @@ def createModel(model_params):
         if i == 0:
             model.add(Dense(units=int(model_params[i]), input_dim=226, use_bias=False))
             model.add(BatchNormalization())
-            model.add(Activation(model_params[i+1]))
+            if (model_params[i+1] == "leakyrelu"):
+                model.add(LeakyReLU(alpha=0.1))
+            elif (model_params[i+1] == "elu"):
+                model.add(ELU(alpha=1.0))
+            else:
+                model.add(Activation(model_params[i+1]))
         elif len(model_params) == i+1:
             model.add(Dense(units=int(model_params[i])))
         elif len(model_params) == i+2:
-            model.add(Dense(units=int(model_params[i]), activation=model_params[i+1]))
+            model.add(Dense(units=int(model_params[i])))
+            if (model_params[i+1] == "leakyrelu"):
+                model.add(LeakyReLU(alpha=0.1))
+            elif (model_params[i+1] == "elu"):
+                model.add(ELU(alpha=1.0))
+            else:
+                model.add(Activation(model_params[i+1]))
         else:
             model.add(Dense(units=int(model_params[i]), use_bias=False))
             model.add(BatchNormalization())
-            model.add(Activation(model_params[i+1]))
+            if (model_params[i+1] == "leakyrelu"):
+                model.add(LeakyReLU(alpha=0.1))
+            elif (model_params[i+1] == "elu"):
+                model.add(ELU(alpha=1.0))
+            else:
+                model.add(Activation(model_params[i+1]))
         i += 2
     return model
 
