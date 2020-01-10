@@ -10,7 +10,7 @@ from datetime import datetime
 
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Dense, Activation, BatchNormalization
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
 warnings.filterwarnings('ignore')
 
@@ -33,15 +33,26 @@ def splitData(data, valid=200000, np_seed=1):
 
 def createModel(model_params):
     model = Sequential()
-    model_params = model_params.split(',')
+    if ',' in model_params:
+        model_params = model_params.split(',')
+    elif '_' in model_params:
+        model_params = model_params.split('_')
+    else:
+        exit(-1)
     i = 0
     while i < len(model_params):
         if i == 0:
-            model.add(Dense(units=int(model_params[i]), activation=model_params[i+1], input_dim=226))
+            model.add(Dense(units=int(model_params[i]), input_dim=226, use_bias=False))
+            model.add(BatchNormalization())
+            model.add(Activation(model_params[i+1]))
         elif len(model_params) == i+1:
             model.add(Dense(units=int(model_params[i])))
-        else:
+        elif len(model_params) == i+2:
             model.add(Dense(units=int(model_params[i]), activation=model_params[i+1]))
+        else:
+            model.add(Dense(units=int(model_params[i]), use_bias=False))
+            model.add(BatchNormalization())
+            model.add(Activation(model_params[i+1]))
         i += 2
     return model
 
