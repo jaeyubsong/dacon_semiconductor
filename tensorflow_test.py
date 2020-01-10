@@ -17,7 +17,7 @@ def createModel(model_params):
     if ',' in model_params:
         model_params = model_params.split(',')
     elif '_' in model_params:
-        model_params = model_params.split(',')
+        model_params = model_params.split('_')
     else:
         exit(-1)
     i = 0
@@ -51,10 +51,10 @@ data_X = data_numpy[:, 4:]
 data_Y = data_numpy[:, 0:4]
 test_X = test_numpy[:,1:]
 
-checkpoint_path = "training_0/cp.855-12.30.ckpt"
+checkpoint_path = "320_relu_320_relu_320_relu_320_relu_320_relu_320_relu_320_relu_4/cp.380-2.45.ckpt"
 checkpoint_dir = os.path.dirname(checkpoint_path)
 
-model = createModel("160,relu,160,relu,160,relu,4")
+model = createModel("320_relu_320_relu_320_relu_320_relu_320_relu_320_relu_320_relu_4")
 model.load_weights(checkpoint_path)
 model.compile(loss='mae', optimizer='adam', metrics=['mae'])
 model.evaluate(data_X, data_Y)
