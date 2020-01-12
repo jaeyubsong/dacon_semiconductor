@@ -147,7 +147,7 @@ for k in range(1000):
 
     model = createModel(cur_hyperparam)
     # If previous model exists, start from it
-    start_epoch = 1
+    start_epoch = 0
     if os.path.isdir(folder_name):
         latest = tf.train.latest_checkpoint(folder_name)
         start_epoch = int(latest.split('cp.')[1].split('-')[0])
@@ -162,7 +162,7 @@ for k in range(1000):
     model.fit(train_X, train_Y, epochs=1000000, batch_size=100,
               initial_epoch=start_epoch,
               validation_data = (valid_X, valid_Y),
-              callbacks = [cp_callback, bestModel, es_callback, tensorboard_callback])
+              callbacks = [cp_callback, bestModel, tensorboard_callback])
     print("Best epoch: %d, best val_loss: %.2f" % (best_epoch, best_val_loss))
     hyperparams_result = open('hyperparams_result.txt', 'a+')
     hyperparams_result.write(cur_hyperparam)
