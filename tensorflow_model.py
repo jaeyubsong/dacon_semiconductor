@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import warnings
 import os
+import glob
 import pickle
 import argparse
 from datetime import datetime
@@ -163,10 +164,12 @@ for k in range(1000):
     model = createModel(cur_hyperparam)
     # If previous model exists, start from it
     start_epoch = 0
-    if os.path.isdir(folder_name):
-        latest = tf.train.latest_checkpoint(folder_name)
+    if os.path.isdir(folder_name) and len(glob.glob(folder_name + "/*.index")) > 0:
+        checkpoints = sorted(glob.glob(folder_name + "/*.index"), key=lambda x: int(x.split('cp.')[1].split('-')[0]))
+        latest = checkpoints[-1]
+        model_name = latest.split('.index')[0]
         start_epoch = int(latest.split('cp.')[1].split('-')[0])
-        model.load_weights(latest)
+        model.load_weights(model_name)
         print("Previous model exists with epoch %d" % start_epoch)
     model.save_weights(checkpoint_path.format(epoch=0, val_loss=0))
 
