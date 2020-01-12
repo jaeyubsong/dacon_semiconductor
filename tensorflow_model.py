@@ -122,6 +122,13 @@ for k in range(1000):
     tensorboard_callback = TensorBoard(log_dir=logdir)
 
     model = createModel(cur_hyperparam)
+    # If previous model exists, start from it
+    start_epoch = 1
+    if os.path.isdir(folder_name):
+        latest = tf.train.latest_checkpoint(folder_name)
+        start_epoch = int(latest.split('cp.')[1].split('-')[0])
+        model.load_weights(latest)
+        print("Previous model exists with epoch %d" % start_epoch)
     model.save_weights(checkpoint_path.format(epoch=0, val_loss=0))
 
     # Compile model
@@ -129,6 +136,7 @@ for k in range(1000):
 
     # Fit model
     model.fit(train_X, train_Y, epochs=1000000, batch_size=100,
+              initial_epoch=start_epoch,
               validation_data = (valid_X, valid_Y),
               callbacks = [cp_callback, bestModel, es_callback, tensorboard_callback])
     print("Best epoch: %d, best val_loss: %.2f" % (best_epoch, best_val_loss))
