@@ -162,7 +162,7 @@ for k in range(1000):
 
     model = createModel(cur_hyperparam)
     # If previous model exists, start from it
-    start_epoch = 1
+    start_epoch = 0
     if os.path.isdir(folder_name):
         latest = tf.train.latest_checkpoint(folder_name)
         start_epoch = int(latest.split('cp.')[1].split('-')[0])
