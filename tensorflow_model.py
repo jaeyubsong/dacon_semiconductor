@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import warnings
 import os
+import pickle
 from datetime import datetime
 
 import tensorflow as tf
@@ -20,6 +21,8 @@ test = pd.read_csv('data/test.csv')
 
 best_val_loss = 99999999
 best_epoch = -1
+cur_hyperparam = ""
+pickle_path = ""
 
 def splitData(data, valid=200000, np_seed=1):
     myData = np.array(data)
@@ -77,9 +80,19 @@ class LossAndErrorPrintingCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         global best_val_loss
         global best_epoch
+        global cur_hyperparam
+        global pickle_path
         if logs['val_loss'] < best_val_loss:
             best_val_loss = logs['val_loss']
             best_epoch = epoch + 1
+            # Save pickle file
+            if os.path.exists(pickle_path):
+                os.remove(pickle_path)
+            else:
+                print("Can not delete the pickle")
+            fileObject = open(pickle_path, 'wb')
+            pickle.dump([best_epoch, best_val_loss], fileObject)
+            fileObject.close()
         print(logs)
         print("Best epoch: %d, best val_loss: %.2f" % (best_epoch, best_val_loss))
 
@@ -96,16 +109,27 @@ test_X = test_numpy[:,1:]
 
 
 for k in range(1000):
-    hyperparams_result = open('hyperparams_result.txt', 'a+')
     hyperparams = open('hyperparams.txt', 'r')
     for j in range(k):
         hyperparams.readline()
     cur_hyperparam = hyperparams.readline().strip()
+    pickle_path =  cur_hyperparam + "_best_val"
     hyperparams.close()
     if cur_hyperparam == "":
         break
-    best_val_loss = 99999999
-    best_epoch = -1
+
+    # Load from pickle
+    if os.path.exists(pickle_path):
+        fileObject = open(pickle_path, 'rb')
+        b = pickle.load(fileObject)
+        best_epoch = b[0]
+        best_val_loss = b[1]
+        print("pickle found, best epoch: %d and best_val_loss: %.2f" % (best_epoch, best_val_loss))
+        fileObject.close()
+    else:
+        best_epoch = -1
+        best_val_loss = 99999999
+        print("pickle not found")
     folder_name = '_'.join(cur_hyperparam.split(','))
     logdir = "logs/scalars/" + datetime.now().strftime("%Y%m%d-%H%M%S")
     checkpoint_path = folder_name + "/cp.{epoch:02d}-{val_loss:.2f}.ckpt"
@@ -140,6 +164,7 @@ for k in range(1000):
               validation_data = (valid_X, valid_Y),
               callbacks = [cp_callback, bestModel, es_callback, tensorboard_callback])
     print("Best epoch: %d, best val_loss: %.2f" % (best_epoch, best_val_loss))
+    hyperparams_result = open('hyperparams_result.txt', 'a+')
     hyperparams_result.write(cur_hyperparam)
     hyperparams_result.write("Best epoch: %d, best val_loss: %.2f\n\n" % (best_epoch, best_val_loss))
     hyperparams_result.close()
