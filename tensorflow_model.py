@@ -7,6 +7,7 @@ import numpy as np
 import warnings
 import os
 import pickle
+import argparse
 from datetime import datetime
 
 import tensorflow as tf
@@ -15,6 +16,12 @@ from tensorflow.keras.layers import Dense, Activation, BatchNormalization, Leaky
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
 warnings.filterwarnings('ignore')
 
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-es", "--earlystop", required=False, type=int, default=0, help="Set to have earlystop")
+args = parser.parse_args()
+print("Finished parsing")
+print(args.earlystop)
 # Train
 data = pd.read_csv('data/train.csv')
 test = pd.read_csv('data/test.csv')
@@ -141,9 +148,17 @@ for k in range(1000):
                                   save_weights_only=True,
                                   save_best_only=False,
                                   verbose=1)
-    es_callback = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=50)
+
     bestModel = LossAndErrorPrintingCallback()
     tensorboard_callback = TensorBoard(log_dir=logdir)
+    es_callback = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=args.earlystop)
+    if args.earlystop == 0:
+        callbacks = [cp_callback, bestModel, tensorboard_callback]
+    else:
+        callbacks = [cp_callback, bestModel, es_callback, tensorboard_callback]
+
+
+
 
     model = createModel(cur_hyperparam)
     # If previous model exists, start from it
@@ -162,7 +177,7 @@ for k in range(1000):
     model.fit(train_X, train_Y, epochs=1000000, batch_size=100,
               initial_epoch=start_epoch,
               validation_data = (valid_X, valid_Y),
-              callbacks = [cp_callback, bestModel, es_callback, tensorboard_callback])
+              callbacks = callbacks)
     print("Best epoch: %d, best val_loss: %.2f" % (best_epoch, best_val_loss))
     hyperparams_result = open('hyperparams_result.txt', 'a+')
     hyperparams_result.write(cur_hyperparam)
