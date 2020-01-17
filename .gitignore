@@ -2,5 +2,6 @@
 !.gitignore
 !tensorflow_model.py
 !tensorflow_test.py
+!tensorflow_resnet.py
 !environment.yml
 !sample_hyperparams.txt
