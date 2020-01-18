@@ -3,5 +3,6 @@
 !tensorflow_model.py
 !tensorflow_test.py
 !tensorflow_resnet.py
+!tensorflow_auto.py
 !environment.yml
 !sample_hyperparams.txt

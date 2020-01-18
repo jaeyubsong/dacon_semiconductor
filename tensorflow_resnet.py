@@ -16,7 +16,20 @@ import tensorflow as tf
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.layers import Dense, Activation, BatchNormalization, Conv1D, GlobalAveragePooling1D, MaxPooling1D, Flatten, Input
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard, ReduceLROnPlateau
+from tensorflow.keras.utils import multi_gpu_model
 
+parser = argparse.ArgumentParser()
+parser.add_argument("-gpu", "--gpu", required=False, default="", help="Set to have earlystop")
+args = parser.parse_args()
+if args.gpu == "":
+    gpu_nums = 0
+else:
+    gpu_nums = len(args.gpu.split(','))
+print("Using %d gpus: %s" % (gpu_nums,args.gpu))
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"]=args.gpu
+
+tf.config.list_physical_devices('GPU')
 # Dataset
 data = pd.read_csv('data/train.csv')
 test = pd.read_csv('data/test.csv')
@@ -113,7 +126,6 @@ def step_decay(epoch):
     return lrate
 
 
-
 folder_name = 'resnet'
 checkpoint_path = folder_name + "/cp.{epoch:02d}-{val_loss:.2f}.ckpt"
 cp_callback = ModelCheckpoint(checkpoint_path,
@@ -132,11 +144,12 @@ cp_callback = ModelCheckpoint(checkpoint_path,
                               verbose=1)
 tensorboard_callback = TensorBoard(log_dir=logdir)
 
-data_numpy = data.to_numpy()
 train, valid = splitData(data, valid=150000, np_seed=1)
 train_X = train[:, 4:]
+train_X = train_X.reshape((train_X.shape[0], train_X.shape[1], 1))
 train_Y = train[:, 0:4]
 valid_X = valid[:, 4:]
+valid_X = valid_X.reshape((valid_X.shape[0], valid_X.shape[1], 1))
 valid_Y = valid[:, 0:4]
 
 
@@ -148,5 +161,5 @@ reduce_lr = ReduceLROnPlateau(monitor='loss', factor=0.5, patience=50,
 callbacks_list = [cp_callback, tensorboard_callback, reduce_lr]
 
 # Fit model
-model.fit(train_X, train_Y, epochs=100000, batch_size=64,
+model.fit(train_X, train_Y, epochs=100000, batch_size=128,
           validation_data=(valid_X, valid_Y), callbacks=callbacks_list)
